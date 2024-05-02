@@ -1,0 +1,43 @@
+# Database: postgres
+version: "3.1"
+
+services:
+
+  database:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: swe304
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      DB_PORT: 5432
+    ports:
+      - "5432:5432"
+    networks:
+      - sbnet
+
+  devops-gradle:
+    image: meryemberra/swe304-app:latest
+    restart: always
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/swe304
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 12345
+      SPRING_JPA_DATABASE: postgresql
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_OPEN_IN_VIEW: false
+    networks:
+      - sbnet
+
+volumes:
+  postgres_data:
+    external: true
+
+networks:
+  sbnet:
+    external: true
